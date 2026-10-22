@@ -82,6 +82,7 @@ static bool salat_compute_times(salat_state_t *state, watch_date_time_t date_tim
 	int fajr_result = __sunriset__(year, month, day_of_month, longitude, latitude, -fajr_angle, 0, &fajr_utc, &unused_set);
 	int sunrise_result = sun_rise_set(year, month, day_of_month, longitude, latitude, &sunrise_utc, &sunset_utc);
 	int isha_result = __sunriset__(year, month, day_of_month, longitude, latitude, -isha_angle, 0, &isha_utc, &unused_set);
+	double solar_noon = sunrise_result == 0 ? (sunrise_utc + sunset_utc) / 2.0 + timezone_hours : dhuhr;
 
 	for (uint8_t index = 0; index < 6; index++) {
 		double time;
@@ -93,14 +94,14 @@ static bool salat_compute_times(salat_state_t *state, watch_date_time_t date_tim
 				time = sunrise_result == 0 ? sunrise_utc + timezone_hours : salat_hour_angle(0.833, true, dhuhr, sin_lat, cos_lat, sin_dec, cos_dec);
 				break;
 			case 2:
-				time = dhuhr + 0.0166;
+				time = solar_noon + 0.0166;
 				break;
 			case 3: {
 				double shadow_difference = asr_shadow_multiplier + fabs(tan(latitude_rad - declination));
 				double asr_altitude = atan(1.0 / shadow_difference);
 				double cos_hour_angle = (sin(asr_altitude) - sin_lat * sin_dec) / (cos_lat * cos_dec);
 				double asr_hour_angle = (cos_hour_angle >= -1.0 && cos_hour_angle <= 1.0) ? acos(cos_hour_angle) * 180.0 / SALAT_PI / 15.0 : 3.0;
-				time = dhuhr + asr_hour_angle;
+				time = solar_noon + asr_hour_angle;
 				break;
 			}
 			case 4:
