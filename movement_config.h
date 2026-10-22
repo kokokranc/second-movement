@@ -30,6 +30,7 @@
 /* The F() below is a trick to be able to get the face as well as its name */
 
 #define PRIMARY_FACES(F) \
+    F(salat) \
     F(stock_clock) \
     F(alarm) \
     F(fast_stopwatch) \
@@ -45,7 +46,7 @@
     F(probability) \
     F(wordle) \
     F(counter) \
-    F(tennis)
+    F(tennis) \
 
 #define TERTIARY_FACES(F) \
     F(settings) \
