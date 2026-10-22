@@ -81,7 +81,7 @@ static bool salat_compute_times(salat_state_t *state, watch_date_time_t date_tim
 	int day_of_month = date_time.unit.day;
 	int fajr_result = __sunriset__(year, month, day_of_month, longitude, latitude, -fajr_angle, 0, &fajr_utc, &unused_set);
 	int sunrise_result = sun_rise_set(year, month, day_of_month, longitude, latitude, &sunrise_utc, &sunset_utc);
-	int isha_result = __sunriset__(year, month, day_of_month, longitude, latitude, -isha_angle, 0, &isha_utc, &unused_set);
+	int isha_result = __sunriset__(year, month, day_of_month, longitude, latitude, -isha_angle, 0, &unused_set, &isha_utc);
 	double solar_noon = sunrise_result == 0 ? (sunrise_utc + sunset_utc) / 2.0 + timezone_hours : dhuhr;
 
 	for (uint8_t index = 0; index < 6; index++) {
