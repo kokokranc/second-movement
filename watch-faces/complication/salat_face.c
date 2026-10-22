@@ -3,6 +3,7 @@
 #include <string.h>
 #include "salat_face.h"
 #include "filesystem.h"
+#include "sunriset.h"
 #include "watch.h"
 
 #define SALAT_PI 3.14159265358979323846
@@ -73,16 +74,23 @@ static bool salat_compute_times(salat_state_t *state, watch_date_time_t date_tim
 	double sin_dec = sin(declination);
 	double cos_dec = cos(declination);
 	double dhuhr = 12.0 + (double)timezone / 3600.0 - longitude / 15.0 - equation_of_time;
-	double sunset = salat_hour_angle(0.833, false, dhuhr, sin_lat, cos_lat, sin_dec, cos_dec);
+	double timezone_hours = (double)timezone / 3600.0;
+	double fajr_utc, sunrise_utc, sunset_utc, isha_utc, unused_set;
+	int year = date_time.unit.year + WATCH_RTC_REFERENCE_YEAR;
+	int month = date_time.unit.month;
+	int day_of_month = date_time.unit.day;
+	int fajr_result = __sunriset__(year, month, day_of_month, longitude, latitude, -fajr_angle, 0, &fajr_utc, &unused_set);
+	int sunrise_result = sun_rise_set(year, month, day_of_month, longitude, latitude, &sunrise_utc, &sunset_utc);
+	int isha_result = __sunriset__(year, month, day_of_month, longitude, latitude, -isha_angle, 0, &isha_utc, &unused_set);
 
 	for (uint8_t index = 0; index < 6; index++) {
 		double time;
 		switch (index) {
 			case 0:
-				time = salat_hour_angle(fajr_angle, true, dhuhr, sin_lat, cos_lat, sin_dec, cos_dec);
+				time = fajr_result == 0 ? fajr_utc + timezone_hours : salat_hour_angle(fajr_angle, true, dhuhr, sin_lat, cos_lat, sin_dec, cos_dec);
 				break;
 			case 1:
-				time = salat_hour_angle(0.833, true, dhuhr, sin_lat, cos_lat, sin_dec, cos_dec);
+				time = sunrise_result == 0 ? sunrise_utc + timezone_hours : salat_hour_angle(0.833, true, dhuhr, sin_lat, cos_lat, sin_dec, cos_dec);
 				break;
 			case 2:
 				time = dhuhr + 0.0166;
@@ -96,10 +104,10 @@ static bool salat_compute_times(salat_state_t *state, watch_date_time_t date_tim
 				break;
 			}
 			case 4:
-				time = sunset;
+				time = sunrise_result == 0 ? sunset_utc + timezone_hours : salat_hour_angle(0.833, false, dhuhr, sin_lat, cos_lat, sin_dec, cos_dec);
 				break;
 			default:
-				time = isha_interval_minutes > 0 ? sunset + (double)isha_interval_minutes / 60.0 : salat_hour_angle(isha_angle, false, dhuhr, sin_lat, cos_lat, sin_dec, cos_dec);
+				time = isha_interval_minutes > 0 ? (sunrise_result == 0 ? sunset_utc + timezone_hours : salat_hour_angle(0.833, false, dhuhr, sin_lat, cos_lat, sin_dec, cos_dec)) + (double)isha_interval_minutes / 60.0 : (isha_result == 0 ? isha_utc + timezone_hours : salat_hour_angle(isha_angle, false, dhuhr, sin_lat, cos_lat, sin_dec, cos_dec));
 				break;
 		}
 
