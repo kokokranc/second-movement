@@ -129,7 +129,8 @@ static void salat_display(salat_state_t *state) {
 	char display[7];
 	watch_clear_display();
 	watch_set_colon();
-	snprintf(display, sizeof(display), "%.4s%s", state->times[state->current_prayer], salat_tags[state->current_prayer]);
+	snprintf(display, sizeof(display), "%.4s  ", state->times[state->current_prayer]);
+	watch_display_text(WATCH_POSITION_TOP_LEFT, salat_tags[state->current_prayer]);
 	watch_display_text(WATCH_POSITION_BOTTOM, display);
 }
 
