@@ -8,7 +8,7 @@
 
 #define SALAT_PI 3.14159265358979323846
 
-static const char salat_tags[6][4] = {"FJ", "RI", "DH", "AS", "1N", "1S"};
+static const char salat_tags[6][4] = {"FJ", "RI", "DH", "Sr", "1N", "1S"};
 static const uint8_t salat_days_before_month[] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
 
 static int16_t salat_day_of_year(watch_date_time_t date_time) {
@@ -130,7 +130,7 @@ static void salat_display(salat_state_t *state) {
 	watch_clear_display();
 	watch_set_colon();
 	snprintf(display, sizeof(display), "%.4s  ", state->times[state->current_prayer]);
-	watch_display_text(WATCH_POSITION_TOP_LEFT, salat_tags[state->current_prayer]);
+	watch_display_text(WATCH_POSITION_TOP_RIGHT, salat_tags[state->current_prayer]);
 	watch_display_text(WATCH_POSITION_BOTTOM, display);
 }
 
